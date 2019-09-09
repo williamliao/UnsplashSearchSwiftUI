@@ -20,10 +20,6 @@ enum RequestError: Error {
     case sessionError(error: Error)
 }
 
-struct APIManager {
-    let key:String = ""
-}
-
 enum HTTPMethod: String {
     case get = "GET", post = "POST", put = "PUT", delete = "DELETE"
 }
