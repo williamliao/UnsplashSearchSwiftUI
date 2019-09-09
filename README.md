@@ -9,5 +9,5 @@ Package from dmytro-anokhin [dmytro-anokhin/url-image](https://github.com/dmytro
 URLImageApp uses images from Unsplash
 
 # Environment
-Xcode 11 beta 7
-Swift 5.1
+1. Xcode 11 beta 7
+2. Swift 5.1
