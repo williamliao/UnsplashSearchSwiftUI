@@ -10,5 +10,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 struct Ancestry: Codable {
 	let type: Type
-	let category: Category
+	let category: Category?
 }

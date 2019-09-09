@@ -13,7 +13,7 @@ struct ContentView: View {
     @State var goSearchView:Bool = false
     
     @ObservedObject var viewModel: UnsplashViewModel
-    
+ 
     @ObservedObject var searchViewModel: SearchViewModel
     
     @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
@@ -112,10 +112,11 @@ struct showSearchModelView: View {
     }
 }
 
+/*
 #if DEBUG
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(viewModel: UnsplashViewModel(), searchViewModel: SearchViewModel())
     }
 }
-#endif
+#endif*/

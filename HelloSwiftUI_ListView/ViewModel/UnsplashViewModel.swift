@@ -12,6 +12,13 @@ import UIKit
 
 class UnsplashViewModel: ObservableObject, Identifiable {
     
+    private let unsplashFetcher: UnsplashFetcher
+    private var disposables = Set<AnyCancellable>()
+    
+    init(unsplashFetcher: UnsplashFetcher) {
+      self.unsplashFetcher = unsplashFetcher
+    }
+    
     var imageURLPublisher = PassthroughSubject<Void, RequestError>()
     
     let manager: APIManager = APIManager()
@@ -28,39 +35,15 @@ class UnsplashViewModel: ObservableObject, Identifiable {
             imageURLPublisher.send()
         }
     }
-    
-    private var photoCancellable: Cancellable? {
-        didSet { oldValue?.cancel() }
-    }
-
-    deinit {
-        photoCancellable?.cancel()
-    }
-    
+   
     var imageBackgroundQueue: DispatchQueue = DispatchQueue(label: "ImageDownloadBackgroundQueue")
    
     private(set) lazy var onAppear: () -> Void = { [weak self] in
         guard let self = self else { return }
         
-        let urlString = "https://api.unsplash.com/photos/random?client_id=\(self.manager.key)&count=20"
-        
-        if self.manager.key.isEmpty {
-            return
-        }
-        
-        guard let url = URL(string: urlString) else {
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        self.photoCancellable = URLSession.shared.publisher(for: request)
-            .retry(3)
-            .mapError({ (error) -> RequestError in
-                return RequestError.request(error: error)
-            })
-            .decode(type: [Response].self, decoder: JSONDecoder())
+       self.unsplashFetcher
+        .getPhotoFeed()
+            .receive(on: DispatchQueue.main)
             .handleEvents(receiveSubscription: { _ in
                 DispatchQueue.main.async {
                   print("handleEvents received the data")
@@ -75,13 +58,13 @@ class UnsplashViewModel: ObservableObject, Identifiable {
                 }
             })
             .subscribe(on: self.imageBackgroundQueue)
-            .eraseToAnyPublisher()
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 print(".sink() received the completion:", String(describing: completion))
                 switch completion {
                 case .finished:
                     break
                 case .failure(let error):
+                    self?.isLoading = false
                     print(error.localizedDescription)
                 }
             }, receiveValue: { [weak self] posts in
@@ -90,16 +73,17 @@ class UnsplashViewModel: ObservableObject, Identifiable {
                     self?.posts = posts
                 }
             })
+            .store(in: &self.disposables)
     }
     
     private(set) lazy var onDisappear: () -> Void = { [weak self] in
         guard let self = self else { return }
-        self.photoCancellable?.cancel()
+        self.disposables.forEach { $0.cancel() }
     }
   
     func cancel() {
-        if let task = self.photoCancellable {
-            task.cancel()
+        self.disposables.forEach {
+            $0.cancel()
         }
     }
 }

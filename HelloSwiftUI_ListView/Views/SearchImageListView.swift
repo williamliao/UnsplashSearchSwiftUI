@@ -51,7 +51,9 @@ struct SearchImageListView: View {
     }
     
     func loadMore() {
-        //print("Load more...")
+        if (searchText.isEmpty) {
+            return
+        }
         page = page + 1
         searchViewModel.search(searchText, "\(page)")
     }
@@ -59,6 +61,6 @@ struct SearchImageListView: View {
 
 struct SearchImageListView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchImageListView(searchViewModel: SearchViewModel())
+        SearchImageListView(searchViewModel: SearchViewModel(unsplashFetcher: UnsplashFetcher()))
     }
 }

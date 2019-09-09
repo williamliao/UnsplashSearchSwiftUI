@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SearchImageRow: View {
     
+
     @ObservedObject var searchViewModel: SearchViewModel
     
     /// post
@@ -26,6 +27,6 @@ struct SearchImageRow: View {
 
 struct SearchImageRow_Previews: PreviewProvider {
     static var previews: some View {
-        SearchImageRow(searchViewModel: SearchViewModel(), Size: CGSize.zero)
+        SearchImageRow(searchViewModel: SearchViewModel(unsplashFetcher: UnsplashFetcher()), Size: CGSize.zero)
     }
 }
